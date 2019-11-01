@@ -1,0 +1,122 @@
+swagger: "2.0"
+info:
+  description: API endpoint description
+  version: "1.0.0"
+  title: Swagger REST API definitions
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+
+basePath: "/api"
+
+# Paths supported by the server application
+paths:
+  /contacts:
+    get:
+      operationId: "contacts.index"
+      tags:
+        - Contacts
+      summary: "List of contacts"
+      description: "Read the list of contacts"
+      responses:
+        200:
+          description: "Successful read of contacts"
+          schema:
+            type: "array"
+            items:
+              properties:
+                fname:
+                  type: "string"
+                lname:
+                  type: "string"
+                dob:
+                  type: "string"
+    post:
+      operationId: contacts.create
+      tags:
+        - Contacts
+      summary: Create a new contact
+      description: Create a new contact
+      parameters:
+        - name: contact
+          in: body
+          description: Contact to create
+          required: True
+          schema:
+            type: object
+            properties:
+              fname:
+                type: "string"
+              lname:
+                type: "string"
+              dob:
+                type: "string"
+      responses:
+        201:
+          description: Successfully created contact
+  /contacts/{oid}:
+    get:
+      operationId: contacts.read
+      tags:
+        - Contacts
+      summary: Read one contact from the contacts list
+      description: Read one contact from the contacts list
+      parameters:
+        - name: oid
+          in: path
+          description: id of the contact
+          type: string
+          required: True
+      responses:
+        200:
+          description: Successfully read person from people list operation
+          schema:
+            properties:
+              fname:
+                type: string
+              lname:
+                type: string
+              dob:
+                type: string
+    put:
+      operationId: contacts.update
+      tags:
+        - Contacts
+      summary: Update a contact
+      description: Update a contact
+      parameters:
+        - name: oid
+          in: path
+          description: id of the contact to update
+          type: string
+          required: True
+        - name: contact
+          in: body
+          schema:
+            type: object
+            properties:
+              fname:
+                type: string
+              lname:
+                type: string
+              dob:
+                type: string
+      responses:
+        200:
+          description: Successfully updated contact
+    delete:
+      operationId: contacts.delete
+      tags:
+        - Contacts
+      summary: Delete a contact
+      description: Delete a contact
+      parameters:
+        - name: oid
+          in: path
+          description: id of the contact to update
+          type: string
+          required: True
+      responses:
+        200:
+          description: Successfully deleted contact
