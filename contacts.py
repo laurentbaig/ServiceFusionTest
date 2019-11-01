@@ -43,9 +43,9 @@ def create(contact):
     except StopIteration:
         pass
 
-    maxId = max(map(lambda x: x['id'], CONTACTS))
+    maxId = max(map(lambda x: int(x['id']), CONTACTS))
     CONTACTS.append({
-        'id': maxId + 1,
+        'id': str(maxId + 1),
         'fname': fname,
         'lname': lname,
         'dob': dob
@@ -73,13 +73,48 @@ def read(oid):
                     
 
 # create PUT handler
-def update():
-    #
-    return
+def update(oid, contact):
+    """
+    Update contact identified by oid
+
+    :param oid:     id of the contact to retrieve
+    :param contact: new contact information
+    :return:        matching contact
+    """
+    global CONTACTS
+    
+    try:
+        data = next(filter(lambda x: x['id'] == str(oid), CONTACTS))
+    except StopIteration:
+        abort(404, f"Contact with id {oid} not found")
+
+    # update with new information
+    for key in ["fname", "lname", "dob"]:
+        value = contact.get(key, None)
+        if value is not None:
+            data[key] = value
+            
+    return data
 
 
 # create DELETE handler
-def delete():
-    #
-    return
+def delete(oid):
+    """
+    Delete contact identified by oid
+
+    :param oid:     id of the contact to retrieve
+    :param contact: new contact information
+    :return:        matching contact
+    """
+    global CONTACTS
+    
+    try:
+        contact = next(filter(lambda x: x['id'] == str(oid), CONTACTS))
+    except StopIteration:
+        abort(404, f"Contact with id {oid} not found")
+
+    idx = CONTACTS.index(contact)
+    del CONTACTS[idx]
+    
+    return contact
 

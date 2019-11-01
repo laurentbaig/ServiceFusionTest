@@ -105,6 +105,14 @@ paths:
       responses:
         200:
           description: Successfully updated contact
+          schema:
+            properties:
+              fname:
+                type: string
+              lname:
+                type: string
+              dob:
+                type: string
     delete:
       operationId: contacts.delete
       tags:
@@ -120,3 +128,11 @@ paths:
       responses:
         200:
           description: Successfully deleted contact
+          schema:
+            properties:
+              fname:
+                type: string
+              lname:
+                type: string
+              dob:
+                type: string
