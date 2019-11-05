@@ -1,27 +1,48 @@
 from flask import make_response, abort
 from datetime import datetime
-import csv
+from database import Contact, Email
+from peewee import SQL, DoesNotExist, prefetch
 
-CONTACTS = []
-with open('contacts.csv') as contactsFile:
-    reader = csv.reader(contactsFile, delimiter=',')
-    fields = next(reader)
-    for row in reader:
-        CONTACTS.append(dict(zip(fields, row)))
+# CONTACTS = []
+# with open('contacts.csv') as contactsFile:
+#     reader = csv.reader(contactsFile, delimiter=',')
+#     fields = next(reader)
+#     for row in reader:
+#         CONTACTS.append(dict(zip(fields, row)))
 
 def get_timestamp():
     return datetime.now().strftime(('%Y-%m-%d %H:%M:%S'))
 
 # Create GET all handler
-def index():
+def index(page=1, pagesize=10, sortby='id', sortdir='asc'):
     """
     /api/contacts
-    :return: list of people
+    :return: list of contacts with paging information
     """
-    global CONTACTS
-    
-    return CONTACTS
+    contacts = Contact.select().order_by(SQL(f"{sortby} COLLATE NOCASE {sortdir}")).paginate(page, pagesize)
+    emails = Email.select()
 
+    contacts_with_emails_iter = prefetch(contacts, emails)
+    data = []
+    for contact in contacts_with_emails_iter:
+        data.append(
+            contact.serialize()
+            # {
+            #     'id': contact.id,
+            #     'fname': contact.fname,
+            #     'lname': contact.lname,
+            #     'dob': contact.dob,
+            #     'emails': [ {'id': em.id, 'email': em.email } for em in contact.emails ]
+            # }
+        )
+
+    return {
+        'data': data,
+        'numberRecords': Contact.select().count(),
+        'page': page,
+        'pagesize': pagesize
+    }
+    
 
 def create(contact):
     """
@@ -36,21 +57,13 @@ def create(contact):
 
     if fname is None or lname is None or dob is None:
         abort(406, f"Entries must not be empty")
-        
-    try:
-        contact = next(filter(lambda x: x['fname'] == fname and x['lname'] == lname, CONTACTS))
-        abort(406, f"Contact '{fname} {lname}' already exists")
-    except StopIteration:
-        pass
 
-    maxId = max(map(lambda x: int(x['id']), CONTACTS))
-    CONTACTS.append({
-        'id': str(maxId + 1),
+    contact = Contact.create(**{
         'fname': fname,
         'lname': lname,
         'dob': dob
-        })
-            
+    })
+        
     return make_response(f"{fname} {lname} successfully created", 201)
 
 
@@ -62,14 +75,19 @@ def read(oid):
     :param oid: id of the contact to retrieve
     :return:    matching contact
     """
-    global CONTACTS
-    
     try:
-        contact = next(filter(lambda x: x['id'] == str(oid), CONTACTS))
+        contact = Contact.get(Contact.id == oid)
     except StopIteration:
         abort(404, f"Contact with id {oid} not found")
 
-    return contact
+    return contact.serialize()
+    # return {
+    #     'id': contact.id,
+    #     'fname': contact.fname,
+    #     'lname': contact.lname,
+    #     'dob': contact.dob,
+    #     'emails': [ {'id': em.id, 'email': em.email } for em in contact.emails ]
+    # }
                     
 
 # create PUT handler
@@ -81,20 +99,29 @@ def update(oid, contact):
     :param contact: new contact information
     :return:        matching contact
     """
-    global CONTACTS
-    
     try:
-        data = next(filter(lambda x: x['id'] == str(oid), CONTACTS))
-    except StopIteration:
+        theContact = Contact.get(Contact.id == oid)
+    except DoesNotExist:
         abort(404, f"Contact with id {oid} not found")
 
     # update with new information
+    upd = {}
     for key in ["fname", "lname", "dob"]:
         value = contact.get(key, None)
         if value is not None:
-            data[key] = value
+            upd[key] = value
+    theContact.update(**upd)
             
-    return data
+    return theContact.serialize()
+    #return {
+    #    'id': theContact.id,
+    #    'fname': theContact.fname,
+    #    'lname': theContact.lname,
+    #    'dob': theContact.dob,
+    #    'emails': [ {'id': em.id, 'email': em.email } for em in theContact.emails ]
+    #}
+                    
+
 
 
 # create DELETE handler
@@ -106,15 +133,20 @@ def delete(oid):
     :param contact: new contact information
     :return:        matching contact
     """
-    global CONTACTS
-    
     try:
-        contact = next(filter(lambda x: x['id'] == str(oid), CONTACTS))
-    except StopIteration:
+        contact = Contact.get(Contact.id == oid)
+    except DoesNotExist:
         abort(404, f"Contact with id {oid} not found")
 
     idx = CONTACTS.index(contact)
     del CONTACTS[idx]
     
-    return contact
+    return contact.serialize()
+    # return {
+    #     'id': contact.id,
+    #     'fname': contact.fname,
+    #     'lname': contact.lname,
+    #     'dob': contact.dob,
+    #     'emails': [ {'id': em.id, 'email': em.email } for em in contact.emails ]
+    # }
 

@@ -19,19 +19,45 @@ paths:
         - Contacts
       summary: "List of contacts"
       description: "Read the list of contacts"
+      parameters:
+        - name: page
+          in: query
+          type: integer
+          description: The page number of the query
+        - name: pagesize
+          in: query
+          type: integer
+          description: The pagesize of the query
+        - name: sortby
+          in: query
+          type: string
+          description: Sort field
+        - name: sortdir
+          in: query
+          type: string
+          description: Sort direction
       responses:
         200:
           description: "Successful read of contacts"
           schema:
-            type: "array"
-            items:
-              properties:
-                fname:
-                  type: "string"
-                lname:
-                  type: "string"
-                dob:
-                  type: "string"
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  properties:
+                    fname:
+                      type: string
+                    lname:
+                      type: string
+                    dob:
+                      type: string
+              page:
+                type: integer
+              pagesize:
+                type: integer
+              numberRecords:
+                type: integer
     post:
       operationId: contacts.create
       tags:
@@ -136,3 +162,36 @@ paths:
                 type: string
               dob:
                 type: string
+  /contacts/{oid}/emails:
+    get:
+      operationId: emails.index
+      tags:
+        - Emails
+      summary: Emails of the contact
+      description: Get emails of the contact
+      parameters:
+        - name: oid
+          in: path
+          description: id of the contact to get the emails
+          type: string
+          required: True
+      responses:
+        200:
+          description: Successful read of emails of contact
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  properties:
+                    email:
+                      type: string
+              page:
+                type: integer
+              pagesize:
+                type: integer
+              numberRecords:
+                type: integer
+      
+      
