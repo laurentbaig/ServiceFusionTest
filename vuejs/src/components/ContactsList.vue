@@ -2,17 +2,22 @@
     <div>
         <h1>Contacts</h1>
         <div>
-        <span class="float-right">
-        {{ fromRow }} - {{ toRow }} of {{ totalRecords }}
-        <button class="btn"
-                @click="changePage(-1)"
-                :disabled="!canPageLeft"
-        ><i class="icon icon-arrow-left"></i></button>
-        <button class="btn"
-                @click="changePage(1)"
-                :disabled="!canPageRight"
-        ><i class="icon icon-arrow-right"></i></button>
-        </span>
+            <button class="btn btn-primary"
+                    @click="onAddContactClicked"
+            >
+                Add Contact
+            </button>
+            <span class="float-right">
+                {{ fromRow }} - {{ toRow }} of {{ totalRecords }}
+                <button class="btn"
+                        @click="changePage(-1)"
+                        :disabled="!canPageLeft"
+                ><i class="icon icon-arrow-left"></i></button>
+                <button class="btn"
+                        @click="changePage(1)"
+                        :disabled="!canPageRight"
+                ><i class="icon icon-arrow-right"></i></button>
+            </span>
         </div>
         <table class="table">
             <thead>
@@ -37,7 +42,7 @@
                             <ul class="menu">
                                 <li v-for="email in row.emails" :key="email.id">
                                     <button class="btn btn-link">
-                                    {{ email.email }}
+                                        {{ email.email }}
                                     </button>
                                 </li>
                             </ul>
@@ -51,6 +56,13 @@
                 </tr>
             </tbody>
         </table>
+
+        <!-- Modal for Adding new contact -->
+        <spectre-modal title="Add New Contact"
+                       ref="contactModal"
+        >
+            <contact-form></contact-form>
+        </spectre-modal>
     </div>
 </template>
 
@@ -65,9 +77,13 @@
 
 <script>
  import { mapState } from 'vuex';
+ import ContactForm from './ContactForm.vue';
+ import SpectreModal from './SpectreModal.vue';
  
  export default {
      components: {
+         ContactForm,
+         SpectreModal
      },
      data() {
          return {
@@ -121,6 +137,9 @@
              catch(error) {
                  console.error(error);
              }
+         },
+         onAddContactClicked() {
+             this.$refs.contactModal.open();
          },
          onRowClick(row) {
              this.$router.push({ path: `/${row.id}` });
