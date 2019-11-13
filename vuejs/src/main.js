@@ -17,7 +17,7 @@ const routes = [
     { path: '/', component: App,
       children: [
           { path: '', component: ContactsList, meta: { title: 'Contacts List' } },
-          { path: '/:id', component: ContactDetail, props: true, meta: { title: 'Contacts Detail' } }
+          { path: '/contact/:id', component: ContactDetail, props: true, meta: { title: 'Contacts Detail' } }
       ]
     }
 ];

@@ -1,6 +1,6 @@
 from flask import make_response, abort
 from datetime import datetime
-from database import Contact, Email
+from database import Contact, Email, Phone
 from peewee import SQL, DoesNotExist, prefetch
 
 # CONTACTS = []
@@ -21,8 +21,9 @@ def index(page=1, pagesize=10, sortby='id', sortdir='asc'):
     """
     contacts = Contact.select().order_by(SQL(f"{sortby} COLLATE NOCASE {sortdir}")).paginate(page, pagesize)
     emails = Email.select()
+    phones = Phone.select()
 
-    contacts_with_emails_iter = prefetch(contacts, emails)
+    contacts_with_emails_iter = prefetch(contacts, emails, phones)
     data = []
     for contact in contacts_with_emails_iter:
         data.append(
@@ -51,9 +52,11 @@ def create(contact):
     :param contact: contact information
     :return:    matching contact
     """
+    print(contact)
     fname = contact.get("fname", None)
     lname = contact.get("lname", None)
     dob = contact.get("dob", None)
+    # emails = contact.get("emails", [])
 
     if fname is None or lname is None or dob is None:
         abort(406, f"Entries must not be empty")
@@ -61,92 +64,76 @@ def create(contact):
     contact = Contact.create(**{
         'fname': fname,
         'lname': lname,
-        'dob': dob
+        'dob': dob[:10]
     })
-        
-    return make_response(f"{fname} {lname} successfully created", 201)
+
+    # if len(emails) > 0:
+    #     for email in emails:
+    #         Email.create(**{
+    #             'contact_id': contact.id,
+    #             'email': email
+    #         })
+
+    # return make_response(f"{fname} {lname} successfully created", 201)
+    return contact.serialize()
 
 
 # create GET one handler
-def read(oid):
+def read(cid):
     """
-    Read one contact identified by oid
+    Read one contact identified by cid
 
-    :param oid: id of the contact to retrieve
+    :param cid: id of the contact to retrieve
     :return:    matching contact
     """
     try:
-        contact = Contact.get(Contact.id == oid)
+        contact = Contact.get(Contact.id == cid)
     except StopIteration:
-        abort(404, f"Contact with id {oid} not found")
+        abort(404, f"Contact with id {cid} not found")
 
     return contact.serialize()
-    # return {
-    #     'id': contact.id,
-    #     'fname': contact.fname,
-    #     'lname': contact.lname,
-    #     'dob': contact.dob,
-    #     'emails': [ {'id': em.id, 'email': em.email } for em in contact.emails ]
-    # }
-                    
+
 
 # create PUT handler
-def update(oid, contact):
+def update(cid, contact):
     """
-    Update contact identified by oid
+    Update contact identified by cid
 
-    :param oid:     id of the contact to retrieve
+    :param cid:     id of the contact to retrieve
     :param contact: new contact information
     :return:        matching contact
     """
     try:
-        theContact = Contact.get(Contact.id == oid)
+        theContact = Contact.get(Contact.id == cid)
     except DoesNotExist:
-        abort(404, f"Contact with id {oid} not found")
+        abort(404, f"Contact with id {cid} not found")
 
     # update with new information
-    upd = {}
-    for key in ["fname", "lname", "dob"]:
-        value = contact.get(key, None)
-        if value is not None:
-            upd[key] = value
-    theContact.update(**upd)
+    print(contact)
+    theContact.fname = contact.get('fname')
+    theContact.lname = contact.get('lname')
+    theContact.dob = contact.get('dob')
+    theContact.save()
             
     return theContact.serialize()
-    #return {
-    #    'id': theContact.id,
-    #    'fname': theContact.fname,
-    #    'lname': theContact.lname,
-    #    'dob': theContact.dob,
-    #    'emails': [ {'id': em.id, 'email': em.email } for em in theContact.emails ]
-    #}
-                    
 
 
 
 # create DELETE handler
-def delete(oid):
+def delete(cid):
     """
-    Delete contact identified by oid
+    Delete contact identified by cid
 
-    :param oid:     id of the contact to retrieve
+    :param cid:     id of the contact to retrieve
     :param contact: new contact information
     :return:        matching contact
     """
     try:
-        contact = Contact.get(Contact.id == oid)
+        contact = Contact.get(Contact.id == cid)
     except DoesNotExist:
-        abort(404, f"Contact with id {oid} not found")
+        abort(404, f"Contact with id {cid} not found")
 
-    idx = CONTACTS.index(contact)
-    del CONTACTS[idx]
+    contact.delete_instance(recursive=True)
     
     return contact.serialize()
-    # return {
-    #     'id': contact.id,
-    #     'fname': contact.fname,
-    #     'lname': contact.lname,
-    #     'dob': contact.dob,
-    #     'emails': [ {'id': em.id, 'email': em.email } for em in contact.emails ]
-    # }
 

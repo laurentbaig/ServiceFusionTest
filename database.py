@@ -20,29 +20,52 @@ class Contact(BaseModel):
             'fname': self.fname,
             'lname': self.lname,
             'dob': self.dob,
-            'emails': [ {'id': em.id, 'email': em.email } for em in self.emails ]
+            'emails': [ {'id': em.id, 'email': em.email } for em in self.emails ],
+            'phones': [ {'id': ph.id, 'phone': ph.phone } for ph in self.phones ]
         }
     
+class Address(BaseModel):
+    id = AutoField()
+    contact = ForeignKeyField(Contact, backref='addresses')
+    full_address = CharField()
+    # address1 = CharField()
+    # address2 = CharField()
+    # city = CharField()
+    # state = CharField()
+    # zip = CharField()
+    # country = CharField()
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'contact_id': self.contact_id,
+            'full_address': self.full_address
+        }
+    
+
 class Email(BaseModel):
     id = AutoField()
     contact = ForeignKeyField(Contact, backref='emails')
     email = CharField()
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'contact_id': self.contact_id,
+            'email': self.email
+        }
 
 class Phone(BaseModel):
     id = AutoField()
     contact = ForeignKeyField(Contact, backref='phones')
     phone = CharField()
 
-class Address(BaseModel):
-    id = AutoField()
-    contact = ForeignKeyField(Contact, backref='address')
-    address1 = CharField()
-    address2 = CharField()
-    city = CharField()
-    state = CharField()
-    zip = CharField()
-    country = CharField()
-    
+    def serialize(self):
+        return {
+            'id': self.id,
+            'contact_id': self.contact_id,
+            'phone': self.phone
+        }
 
 if __name__ == '__main__':
     import sys

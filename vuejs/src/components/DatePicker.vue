@@ -17,7 +17,7 @@
             <div class="column">
                 <label>day</label>
                 <select class="form-select" v-model="day">
-                    <option v-for="dy in days" :key="dy" :vale="dy">{{ dy }}</option>
+                    <option v-for="dy in days" :key="dy" :value="dy">{{ dy }}</option>
                 </select>
             </div>
         </div>
@@ -33,15 +33,16 @@
 <script>
  export default {
      props: {
+         value: {
+             type: Date,
+             default: () => new Date()
+         },
          title: String
      },
      data() {
-         let today = new Date();
-         console.log(today.getDay());
+         let today = this.value;
          return {
-             day: today.getDate(),
              days: this.createDaysArray(today),
-             month: today.getMonth(),
              months: [
                  { id: 1, name: 'January'},
                  { id: 2, name: 'February'},
@@ -56,16 +57,29 @@
                  { id: 11, name: 'November'},
                  { id: 12, name: 'December'}
              ],
-             year: today.getYear()+1900,
              years: this.createYearsArray(today)
          };
+     },
+     computed: {
+         year: {
+             get() { return this.value.getUTCFullYear(); },
+             set(v) { this.update(v, this.month, this.day); }
+         },
+         month: {
+             get() { return this.value.getUTCMonth()+1; },
+             set(v) { this.update(this.year, v, this.day); }
+         },
+         day: {
+             get() { return this.value.getUTCDate(); },
+             set(v) { this.update(this.year, this.month, v); }
+         },
      },
      methods: {
          createDaysArray(today) {
              let ndays = this.getDaysForMonth(today.getMonth(), today.getYear());
              let days = [];
              for (let ii = 0; ii < ndays; ii++) {
-                 days.push(String(ii+1));
+                 days.push(ii+1);
              }
              return days;
          },
@@ -90,6 +104,10 @@
                  return 29;
              }
              return 28;
+         },
+         update(y, m, d) {
+             let newDate = new Date(Date.UTC(y, m-1, d));
+             this.$emit('input', newDate);
          }
      }
 

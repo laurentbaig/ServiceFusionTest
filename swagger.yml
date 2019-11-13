@@ -52,6 +52,10 @@ paths:
                       type: string
                     dob:
                       type: string
+                    emails:
+                      type: array
+                    phones:
+                      type: array
               page:
                 type: integer
               pagesize:
@@ -73,15 +77,25 @@ paths:
             type: object
             properties:
               fname:
-                type: "string"
+                type: string
               lname:
-                type: "string"
+                type: string
               dob:
-                type: "string"
+                type: string
       responses:
-        201:
+        200:
           description: Successfully created contact
-  /contacts/{oid}:
+          schema:
+            properties:
+              id:
+                type: number
+              fname:
+                type: string
+              lname:
+                type: string
+              dob:
+                type: string
+  /contacts/{cid}:
     get:
       operationId: contacts.read
       tags:
@@ -89,14 +103,14 @@ paths:
       summary: Read one contact from the contacts list
       description: Read one contact from the contacts list
       parameters:
-        - name: oid
+        - name: cid
           in: path
           description: id of the contact
           type: string
           required: True
       responses:
         200:
-          description: Successfully read person from people list operation
+          description: Successfully read contact
           schema:
             properties:
               fname:
@@ -112,7 +126,7 @@ paths:
       summary: Update a contact
       description: Update a contact
       parameters:
-        - name: oid
+        - name: cid
           in: path
           description: id of the contact to update
           type: string
@@ -146,7 +160,7 @@ paths:
       summary: Delete a contact
       description: Delete a contact
       parameters:
-        - name: oid
+        - name: cid
           in: path
           description: id of the contact to update
           type: string
@@ -162,7 +176,57 @@ paths:
                 type: string
               dob:
                 type: string
-  /contacts/{oid}/emails:
+  /contacts/{cid}/addresses:
+    get:
+      operationId: addresses.index
+      tags:
+        - Addresses
+      summary: Address of the contact
+      description: Get address of the contact
+      parameters:
+        - name: cid
+          in: path
+          description: id of the contact to get the address
+          type: string
+          required: True
+      responses:
+        200:
+          description: Successful read of addresses of contact
+          schema:
+            type: array
+            items:
+              properties:
+                id:
+                  type: number
+                contact_id:
+                  type: number
+                address:
+                  type: string
+    post:
+      operationId: addresses.create
+      tags:
+        - Addresses
+      summary: Create address for contact
+      description: Create address for the contact
+      parameters:
+        - name: cid
+          in: path
+          description: id of the contact to create the address
+          type: string
+          required: True
+        - name: address
+          in: body
+          description: Address to create
+          required: True
+          schema:
+            type: object
+            properties:
+              address:
+                type: string
+      responses:
+        201:
+          description: Successfully created address
+  /contacts/{cid}/emails:
     get:
       operationId: emails.index
       tags:
@@ -170,7 +234,7 @@ paths:
       summary: Emails of the contact
       description: Get emails of the contact
       parameters:
-        - name: oid
+        - name: cid
           in: path
           description: id of the contact to get the emails
           type: string
@@ -179,19 +243,230 @@ paths:
         200:
           description: Successful read of emails of contact
           schema:
+            type: array
+            items:
+              properties:
+                id:
+                  type: number
+                contact_id:
+                  type: number
+                email:
+                  type: string
+    post:
+      operationId: emails.create
+      tags:
+        - Emails
+      summary: Create email for contact
+      description: Create email for the contact
+      parameters:
+        - name: cid
+          in: path
+          description: id of the contact to create the email
+          type: string
+          required: True
+        - name: email
+          in: body
+          description: Email to create
+          required: True
+          schema:
             type: object
             properties:
-              data:
-                type: array
-                items:
-                  properties:
-                    email:
-                      type: string
-              page:
-                type: integer
-              pagesize:
-                type: integer
-              numberRecords:
-                type: integer
-      
-      
+              email:
+                type: string
+      responses:
+        201:
+          description: Successfully created email
+  /contacts/{cid}/phones:
+    get:
+      operationId: phones.index
+      tags:
+        - Phones
+      summary: Phones of the contact
+      description: Get phones of the contact
+      parameters:
+        - name: cid
+          in: path
+          description: id of the contact to get the phones
+          type: string
+          required: True
+      responses:
+        200:
+          description: Successful read of phones of contact
+          schema:
+            type: array
+            items:
+              properties:
+                id:
+                  type: number
+                contact_id:
+                  type: number
+                phone:
+                  type: string
+    post:
+      operationId: phones.create
+      tags:
+        - Phones
+      summary: Create phone for contact
+      description: Create phone for the contact
+      parameters:
+        - name: cid
+          in: path
+          description: id of the contact to create the phone
+          type: string
+          required: True
+        - name: phone
+          in: body
+          description: Phone to create
+          required: True
+          schema:
+            type: object
+            properties:
+              phone:
+                type: string
+      responses:
+        201:
+          description: Successfully created phone
+  /addresses/{aid}:
+    put:
+      operationId: addresses.update
+      tags:
+        - Addresses
+      summary: Update an address
+      description: Update an address
+      parameters:
+        - name: aid
+          in: path
+          description: id of the address
+          type: string
+          required: True
+        - name: address
+          in: body
+          schema:
+            type: object
+            properties:
+              address:
+                type: string
+      responses:
+        200:
+          description: Successfully updated address
+          schema:
+            properties:
+              address:
+                type: string
+    delete:
+      operationId: addresses.delete
+      tags:
+        - Addresses
+      summary: Delete an address
+      description: Delete an address
+      parameters:
+        - name: aid
+          in: path
+          description: id of the address for deletion
+          type: string
+          required: True
+      responses:
+        200:
+          description: Successfully deleted address
+          schema:
+            properties:
+              address:
+                type: string
+              contact_id:
+                type: number
+  /emails/{eid}:
+    put:
+      operationId: emails.update
+      tags:
+        - Emails
+      summary: Update an email
+      description: Update an email
+      parameters:
+        - name: eid
+          in: path
+          description: id of the email
+          type: string
+          required: True
+        - name: email
+          in: body
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+      responses:
+        200:
+          description: Successfully updated email
+          schema:
+            properties:
+              email:
+                type: string
+    delete:
+      operationId: emails.delete
+      tags:
+        - Emails
+      summary: Delete an email
+      description: Delete an email
+      parameters:
+        - name: eid
+          in: path
+          description: id of the email for deletion
+          type: string
+          required: True
+      responses:
+        200:
+          description: Successfully deleted email
+          schema:
+            properties:
+              email:
+                type: string
+              contact_id:
+                type: number
+  /phones/{pid}:
+    put:
+      operationId: phones.update
+      tags:
+        - Phones
+      summary: Update a phone
+      description: Update a phone
+      parameters:
+        - name: pid
+          in: path
+          description: id of the phone
+          type: string
+          required: True
+        - name: phone
+          in: body
+          schema:
+            type: object
+            properties:
+              phone:
+                type: string
+      responses:
+        200:
+          description: Successfully updated phone
+          schema:
+            properties:
+              phone:
+                type: string
+    delete:
+      operationId: phones.delete
+      tags:
+        - Phones
+      summary: Delete a phone
+      description: Delete a phone
+      parameters:
+        - name: pid
+          in: path
+          description: id of the phone for deletion
+          type: string
+          required: True
+      responses:
+        200:
+          description: Successfully deleted phone
+          schema:
+            properties:
+              phone:
+                type: string
+              contact_id:
+                type: number
