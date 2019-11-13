@@ -14,12 +14,17 @@ def get_timestamp():
     return datetime.now().strftime(('%Y-%m-%d %H:%M:%S'))
 
 # Create GET all handler
-def index(page=1, pagesize=10, sortby='id', sortdir='asc'):
+def index(page=1, pagesize=10, sortby='id', sortdir='asc', search=None):
     """
     /api/contacts
     :return: list of contacts with paging information
     """
-    contacts = Contact.select().order_by(SQL(f"{sortby} COLLATE NOCASE {sortdir}")).paginate(page, pagesize)
+    if search is not None:
+        return searchContacts(search)
+
+    contacts = Contact.select().order_by(
+        SQL(f"{sortby} COLLATE NOCASE {sortdir}")
+    ).paginate(page, pagesize)
     emails = Email.select()
     phones = Phone.select()
 
@@ -44,6 +49,26 @@ def index(page=1, pagesize=10, sortby='id', sortdir='asc'):
         'pagesize': pagesize
     }
     
+def searchContacts(searchString):
+    print(searchString)
+    if len(searchString.split()) > 1:
+        first, last = searchString.split()
+        contacts = Contact.select().where((Contact.fname.contains(first)) &
+                                          (Contact.lname.contains(last)))
+    else:
+        contacts = Contact.select().where(Contact.fname.contains(searchString))
+
+    returnList = []
+    for c in contacts[:25]:
+        returnList.append(c.serialize())
+
+    return {
+        'data': returnList,
+        'numberRecords': len(returnList),
+        'page': 1,
+        'pagesize': 25
+    }
+        
 
 def create(contact):
     """

@@ -1,23 +1,54 @@
 <template>
     <div>
         <h1>Contacts</h1>
-        <div>
-            <button class="btn btn-primary"
-                    @click="onAddContactClicked"
-            >
-                Add Contact
-            </button>
-            <span class="float-right">
-                {{ fromRow }} - {{ toRow }} of {{ totalRecords }}
-                <button class="btn"
-                        @click="changePage(-1)"
-                        :disabled="!canPageLeft"
-                ><i class="icon icon-arrow-left"></i></button>
-                <button class="btn"
-                        @click="changePage(1)"
-                        :disabled="!canPageRight"
-                ><i class="icon icon-arrow-right"></i></button>
-            </span>
+        <div class="columns">
+            <div class="col-3">
+                <button class="btn btn-primary"
+                        @click="onAddContactClicked"
+                >
+                    Add Contact
+                </button>
+            </div>
+            <div class="col-2"></div>
+            <div class="col-4">
+                <div class="input-group">
+                    <input type="text"
+                           class="form-input"
+                           v-model="searchString"
+                           @input="debouncedUpdateSearchOptions"
+                    >
+                    <div class="dropdown dropdown-right"
+                         :class="{active: isSearching}"
+                    >
+                        <button class="btn btn-primary input-group-btn dropdown-toggle">
+                            <i class="icon icon-search"></i>
+                        </button>
+                        <ul class="menu">
+                            <li v-for="(option, index) in searchOptions"
+                                class="menu-item"
+                                :key="index"
+                            >
+                                <router-link :to="'/contact/'+option.id">
+                                    {{ option.fname }} {{ option.lname }}
+                                </router-link>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <span class="float-right">
+                    {{ fromRow }} - {{ toRow }} of {{ totalRecords }}
+                    <button class="btn"
+                            @click="changePage(-1)"
+                            :disabled="!canPageLeft"
+                    ><i class="icon icon-arrow-left"></i></button>
+                    <button class="btn"
+                            @click="changePage(1)"
+                            :disabled="!canPageRight"
+                    ><i class="icon icon-arrow-right"></i></button>
+                </span>
+            </div>
         </div>
         <table class="table">
             <thead>
@@ -95,6 +126,7 @@
  import Alert from './Alert.vue';
  import ContactForm from './ContactForm.vue';
  import SpectreModal from './SpectreModal.vue';
+ import _ from 'lodash';
  
  export default {
      components: {
@@ -115,9 +147,15 @@
                  phone: ''
              },
              fromRow: 1,
+             isSearching: false,
+             searchOptions: [],
+             searchString: '',
              toRow: 10,
              totalRecords: 0,
          };
+     },
+     created() {
+         this.debouncedUpdateSearchOptions = _.debounce(() => { this.updateSearchOptions(); }, 300);
      },
      mounted() {
          this.getPage();
@@ -248,8 +286,17 @@
              }
              this.$store.commit('setListSortField', field);
              this.getPage();
-         }
-
+         },
+         updateSearchOptions() {
+             this.isSearching = true;
+             axios.get(`/contacts?search=${this.searchString}`)
+                  .then(response => {
+                      this.searchOptions = response.data.data;
+                  })
+                  .catch(err => {
+                      console.log(err);
+                  });
+         },
      }
  }
 </script>

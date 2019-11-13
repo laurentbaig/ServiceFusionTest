@@ -36,6 +36,10 @@ paths:
           in: query
           type: string
           description: Sort direction
+        - name: search
+          in: query
+          type: string
+          description: Search string
       responses:
         200:
           description: "Successful read of contacts"
