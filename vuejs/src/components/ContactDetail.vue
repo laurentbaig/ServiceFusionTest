@@ -227,7 +227,7 @@
      },
      methods: {
          getContact() {
-             axios.get(`http://localhost:5000/api/contacts/${this.id}`)
+             axios.get(`/contacts/${this.id}`)
                   .then(response => {
                       this.contact = response.data;
                   })
@@ -236,7 +236,7 @@
                   });
          },
          getEmails() {
-             axios.get(`http://localhost:5000/api/contacts/${this.id}/emails`)
+             axios.get(`/contacts/${this.id}/emails`)
                   .then(response => {
                       this.emails = response.data;
                   })
@@ -245,7 +245,7 @@
                   });
          },
          getPhones() {
-             axios.get(`http://localhost:5000/api/contacts/${this.id}/phones`)
+             axios.get(`/contacts/${this.id}/phones`)
                   .then(response => {
                       this.phones = response.data;
                   })
@@ -254,7 +254,7 @@
                   });
          },
          getAddresses() {
-             axios.get(`http://localhost:5000/api/contacts/${this.id}/addresses`)
+             axios.get(`/contacts/${this.id}/addresses`)
                   .then(response => {
                       this.addresses = response.data;
                   })
@@ -263,37 +263,43 @@
                   });
          },
          deleteAddressClicked(phone) {
-             axios.delete(`http://localhost:5000/api/addresses/${phone.id}`)
-                  .then(response => {
-                      this.$refs.alert.success('Address successfully delete');
-                      this.getAddresses();
-                  })
-                  .catch(err => {
-                      console.log(err);
-                  });
+             if (window.confirm(`Are you sure you wish to delete ${phone.phone}`)) {
+                 axios.delete(`/addresses/${phone.id}`)
+                      .then(response => {
+                          this.$refs.alert.success('Address successfully delete');
+                          this.getAddresses();
+                      })
+                      .catch(err => {
+                          console.log(err);
+                      });
+             }
          },
          deleteEmailClicked(email) {
-             axios.delete(`http://localhost:5000/api/emails/${email.id}`)
-                  .then(response => {
-                      this.$refs.alert.success('Email successfully delete');
-                      this.getEmails();
-                  })
-                  .catch(err => {
-                      console.log(err);
-                  });
+             if (window.confirm(`Are you sure you wish to delete ${email.email}`)) {
+                 axios.delete(`/emails/${email.id}`)
+                      .then(response => {
+                          this.$refs.alert.success('Email successfully delete');
+                          this.getEmails();
+                      })
+                      .catch(err => {
+                          console.log(err);
+                      });
+             }
          },
          deletePhoneClicked(phone) {
-             axios.delete(`http://localhost:5000/api/phones/${phone.id}`)
-                  .then(response => {
-                      this.$refs.alert.success('Phone successfully delete');
-                      this.getPhones();
-                  })
-                  .catch(err => {
-                      console.log(err);
-                  });
+             if (window.confirm(`Are you sure you wish to delete ${phone.phone}`)) {
+                 axios.delete(`/phones/${phone.id}`)
+                      .then(response => {
+                          this.$refs.alert.success('Phone successfully delete');
+                          this.getPhones();
+                      })
+                      .catch(err => {
+                          console.log(err);
+                      });
+             }
          },
          onAddressUpdated(address) {
-             axios.put(`http://localhost:5000/api/addresses/${address.id}`, address)
+             axios.put(`/addresses/${address.id}`, address)
                   .then(response => {
                       this.$refs.alert.success('Address updated');
                       this.getAddresses();
@@ -303,7 +309,7 @@
                   });
          },
          onEmailUpdated(email) {
-             axios.put(`http://localhost:5000/api/emails/${email.id}`, email)
+             axios.put(`/emails/${email.id}`, email)
                   .then(response => {
                       this.$refs.alert.success('Email updated');
                       this.getEmails();
@@ -313,7 +319,7 @@
                   });
          },
          onPhoneUpdated(phone) {
-             axios.put(`http://localhost:5000/api/phones/${phone.id}`, phone)
+             axios.put(`/phones/${phone.id}`, phone)
                   .then(response => {
                       this.$refs.alert.success('Phone updated');
                       this.getPhones();
@@ -335,7 +341,7 @@
              this.$refs.phoneModal.open();
          },
          onSaveNewAddress() {
-             axios.post(`http://localhost:5000/api/contacts/${this.contact.id}/addresses`, {
+             axios.post(`/contacts/${this.contact.id}/addresses`, {
                  address: this.newAddress
              })
                   .then(response => {
@@ -347,7 +353,7 @@
                   });
          },
          onSaveNewEmail() {
-             axios.post(`http://localhost:5000/api/contacts/${this.contact.id}/emails`, {
+             axios.post(`/contacts/${this.contact.id}/emails`, {
                  email: this.newEmail
              })
                   .then(response => {
@@ -359,7 +365,7 @@
                   });
          },
          onSaveNewPhone() {
-             axios.post(`http://localhost:5000/api/contacts/${this.contact.id}/phones`, {
+             axios.post(`/contacts/${this.contact.id}/phones`, {
                  phone: this.newPhone
              })
                   .then(response => {

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
@@ -12,6 +13,9 @@ import '../node_modules/spectre.css/dist/spectre-icons.css';
 Vue.config.productionTip = false;
 Vue.use(VueRouter);
 Vue.use(Vuex);
+
+window.axios = axios;
+window.axios.defaults.baseURL = 'http://localhost:5000/api';
 
 const routes = [
     { path: '/', component: App,

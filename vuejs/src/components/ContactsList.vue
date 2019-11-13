@@ -162,7 +162,7 @@
              return row.phones && row.phones.length > 0 ? row.phones[0].phone : '(no phone)';
          },
          getPage() {
-             axios.get(`http://localhost:5000/api/contacts?${this.queryParameters}`)
+             axios.get(`/contacts?${this.queryParameters}`)
                   .then(response => {
                       let payload = response.data;
                       this.contacts = payload.data;
@@ -200,18 +200,20 @@
              */
          },
          onDeleteClicked(row) {
-             axios.delete(`http://localhost:5000/api/contacts/${row.id}`)
-                  .then(response => {
-                      this.$refs.alert.success('Contact successfully deleted');
-                      this.getPage();
-                  })
-                  .catch(err => {
-                      console.log(err);
-                  });
+             if (window.confirm(`Are you sure you wish to delete ${row.fname} ${row.lname}?`)) {
+                 axios.delete(`/contacts/${row.id}`)
+                      .then(response => {
+                          this.$refs.alert.success('Contact successfully deleted');
+                          this.getPage();
+                      })
+                      .catch(err => {
+                          console.log(err);
+                      });
+             }
          },
          onSaveContact() {
              if (this.form.id > 0) {
-                 axios.put(`http://localhost:5000/api/contacts/${this.form.id}`, this.form)
+                 axios.put(`/contacts/${this.form.id}`, this.form)
                       .then(response => {
                           this.$refs.alert.success('Contact successfully updated');
                           this.getPage();
@@ -221,16 +223,16 @@
                       });
                  return;
              }
-             axios.post(`http://localhost:5000/api/contacts`, {
+             axios.post(`/contacts`, {
                  ...this.form,
                  dob: this.form.dob.toISOString()
              })
                   .then(response => {
                       let c = response.data;
-                      axios.post(`http://localhost:5000/api/contacts/${c.id}/phones`, {
+                      axios.post(`/contacts/${c.id}/phones`, {
                           phone: this.form.phone
                       });
-                      axios.post(`http://localhost:5000/api/contacts/${c.id}/emails`, {
+                      axios.post(`/contacts/${c.id}/emails`, {
                           email: this.form.email
                       });
                       this.$refs.alert.success('Contact successfully created');
