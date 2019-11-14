@@ -123,9 +123,9 @@
 <script>
  import axios from 'axios';
  import { mapState } from 'vuex';
- import Alert from './Alert.vue';
- import ContactForm from './ContactForm.vue';
- import SpectreModal from './SpectreModal.vue';
+ import Alert from '../components/Alert.vue';
+ import ContactForm from '../components/ContactForm.vue';
+ import SpectreModal from '../components/SpectreModal.vue';
  import _ from 'lodash';
  
  export default {

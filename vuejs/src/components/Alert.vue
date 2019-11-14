@@ -12,6 +12,7 @@
      left: 50%;
      max-width: 60%;
      transform: translateX(-50%);
+     z-index: 1000;
  }
 </style>
 

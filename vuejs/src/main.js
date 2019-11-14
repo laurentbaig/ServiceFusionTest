@@ -4,8 +4,8 @@ import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 
 import App from './App.vue';
-import ContactsList from './components/ContactsList.vue';
-import ContactDetail from './components/ContactDetail.vue';
+import ContactsList from './pages/ContactsList.vue';
+import ContactDetail from './pages/ContactDetail.vue';
 
 import '../node_modules/spectre.css/dist/spectre.css';
 import '../node_modules/spectre.css/dist/spectre-icons.css';
@@ -38,7 +38,6 @@ const routes = [
     }
 ];
 const router = new VueRouter({
-    mode: 'history',
     routes
 });
 
@@ -47,6 +46,7 @@ const router = new VueRouter({
  */
 const store = new Vuex.Store({
     state: {
+        globalAlertComponent: null,
         listPage: 1,
         listPageSize: 10,
         listSortField: 'id',
@@ -64,6 +64,9 @@ const store = new Vuex.Store({
         },
         setListSortDir(state, value) {
             state.listSortDir = value;
+        },
+        setGlobalAlertComponent(state, value) {
+            state.globalAlertComponent = value;
         }
     }
 });

@@ -5,7 +5,12 @@
         <template v-if="contact">
             <div class="card">
                 <div class="card-body">
-                    <h2>{{ contact.lname }}, {{ contact.fname }}</h2>
+                    <h2>{{ contact.lname }}, {{ contact.fname }}
+                        <button class="btn btn-link btn-sm"
+                                style="padding-top: 4px"
+                                @click="onEditNameClicked"
+                        >Edit</button>
+                    </h2>
                     <div>
                         <p>
                             Date of Birth: {{ contact.dob }}
@@ -146,7 +151,9 @@
         <spectre-modal title="New Email" ref="emailModal">
             <div class="form-group">
                 <label>Email</label>
-                <input class="form-input" type="email" v-model="newEmail">
+                <input class="form-input" type="email" v-model="newEmail"
+                       :pattern="regexEmail"
+                >
             </div>
             <template v-slot:footer>
                 <button class="btn btn-primary"
@@ -158,7 +165,9 @@
         <spectre-modal title="New Phone" ref="phoneModal">
             <div class="form-group">
                 <label>Phone</label>
-                <input class="form-input" type="tel" v-model="newPhone">
+                <input class="form-input" type="tel" v-model="newPhone" placeholder="123-456-7890"
+                       :pattern="regexPhone"
+                >
             </div>
             <template v-slot:footer>
                 <button class="btn btn-primary"
@@ -179,6 +188,22 @@
             </template>
         </spectre-modal>
 
+        <spectre-modal title="Edit Name" ref="nameModal">
+            <div class="form-group">
+                <label>First Name</label>
+                <input class="form-input" type="text" v-model="newName.fname">
+            </div>
+            <div class="form-group">
+                <label>Last Name</label>
+                <input class="form-input" type="text" v-model="newName.lname">
+            </div>
+            <template v-slot:footer>
+                <button class="btn btn-primary"
+                        @click="onUpdateNameClicked"
+                >Update</button>
+            </template>
+        </spectre-modal>
+
         <alert ref="alert" :autohide="true"></alert>
 
     </div>
@@ -195,9 +220,9 @@
 
 <script>
  import axios from 'axios';
- import Alert from './Alert.vue';
- import EditableObjectField from './EditableObjectField.vue';
- import SpectreModal from './SpectreModal.vue';
+ import Alert from '../components/Alert.vue';
+ import EditableObjectField from '../components/EditableObjectField.vue';
+ import SpectreModal from '../components/SpectreModal.vue';
  
  export default {
      components: {
@@ -216,7 +241,10 @@
              phones: [],
              newEmail: '',
              newPhone: '',
-             newAddress: ''
+             newAddress: '',
+             newName: { fname: '', lname: '' },
+             regexEmail: "^\\w+([.]\\w+)*[@]\\w+([.]\\w+)*$",
+             regexPhone: "^[0-9]{3}[-][0-9]{3}[-][0-9]{4}$"
          };
      },
      mounted() {
@@ -224,6 +252,8 @@
          this.getEmails();
          this.getPhones();
          this.getAddresses();
+     },
+     computed: {
      },
      methods: {
          getContact() {
@@ -340,6 +370,11 @@
              this.newPhone = '';
              this.$refs.phoneModal.open();
          },
+         onEditNameClicked() {
+             this.newName.fname = this.contact.fname;
+             this.newName.lname = this.contact.lname;
+             this.$refs.nameModal.open();
+         },
          onSaveNewAddress() {
              axios.post(`/contacts/${this.contact.id}/addresses`, {
                  address: this.newAddress
@@ -353,29 +388,58 @@
                   });
          },
          onSaveNewEmail() {
-             axios.post(`/contacts/${this.contact.id}/emails`, {
-                 email: this.newEmail
-             })
-                  .then(response => {
-                      this.$refs.emailModal.close();
-                      this.getEmails();
-                  })
-                  .catch(err => {
-                      console.log(err);
-                  });
+             let regex = new RegExp(this.regexEmail);
+             let test = regex.test(this.newEmail);
+             if (test) {
+                 axios.post(`/contacts/${this.contact.id}/emails`, {
+                     email: this.newEmail
+                 })
+                      .then(response => {
+                          this.$refs.emailModal.close();
+                          this.$refs.alert.success('Email saved');
+                          this.getEmails();
+                      })
+                      .catch(err => {
+                          console.log(err);
+                      });
+                 return;
+             }
+             this.$refs.alert.error("Please enter a valid email");
          },
          onSaveNewPhone() {
-             axios.post(`/contacts/${this.contact.id}/phones`, {
-                 phone: this.newPhone
-             })
-                  .then(response => {
-                      this.$refs.phoneModal.close();
-                      this.getPhones();
-                  })
-                  .catch(err => {
-                      console.log(err);
-                  });
+             /* validate the phone number */
+             let regex = new RegExp(this.regexPhone);
+             let test = regex.test(this.newPhone);
+             if (test) {
+                 axios.post(`/contacts/${this.contact.id}/phones`, {
+                     phone: this.newPhone
+                 })
+                      .then(response => {
+                          this.$refs.phoneModal.close();
+                          this.$refs.alert.success('Phone saved');
+                          this.getPhones();
+                      })
+                      .catch(err => {
+                          console.log(err);
+                      });
+                 return;
+             }
+             this.$refs.alert.error("Please enter a valid phone number in the format xxx-yyy-zzzz");
          },
+         onUpdateNameClicked() {
+             axios.put(`/contacts/${this.contact.id}`, {
+                 fname: this.newName.fname,
+                 lname: this.newName.lname
+             })
+                 .then(response => {
+                     this.$refs.nameModal.close();
+                     this.$refs.alert.success('New name saved');
+                     this.getContact();
+                 })
+                 .catch(err => {
+                     console.log(err);
+                 });
+         }
      }
  }
 </script>

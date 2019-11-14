@@ -7,6 +7,11 @@
 <script>
  export default {
      name: 'app',
+     /*
+     mounted() {
+         this.$store.commit('setGlobalAlertComponent', this.$refs.alert);
+     }
+     */
  }
 </script>
 

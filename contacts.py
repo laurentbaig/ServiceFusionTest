@@ -135,9 +135,12 @@ def update(cid, contact):
 
     # update with new information
     print(contact)
-    theContact.fname = contact.get('fname')
-    theContact.lname = contact.get('lname')
-    theContact.dob = contact.get('dob')
+    if contact.get('fname', None):
+        theContact.fname = contact.get('fname')
+    if contact.get('lname', None):
+        theContact.lname = contact.get('lname')
+    if contact.get('dob', None):
+        theContact.dob = contact.get('dob')
     theContact.save()
             
     return theContact.serialize()
