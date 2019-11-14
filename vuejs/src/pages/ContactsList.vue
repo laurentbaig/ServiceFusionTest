@@ -246,7 +246,8 @@
                       });
              }
          },
-         onSaveContact() {
+         async onSaveContact() {
+             /*
              if (this.form.id > 0) {
                  axios.put(`/contacts/${this.form.id}`, this.form)
                       .then(response => {
@@ -258,24 +259,22 @@
                       });
                  return;
              }
-             axios.post(`/contacts`, {
+             */
+             let data = await axios.post(`/contacts`, {
                  ...this.form,
                  dob: this.form.dob.toISOString()
-             })
-                  .then(response => {
-                      let c = response.data;
-                      axios.post(`/contacts/${c.id}/phones`, {
-                          phone: this.form.phone
-                      });
-                      axios.post(`/contacts/${c.id}/emails`, {
-                          email: this.form.email
-                      });
-                      this.$refs.alert.success('Contact successfully created');
-                      this.getPage();
-                  })
-                  .catch(err => {
-                      console.log(err);
-                  });
+             });
+             let c = data.data;
+             await Promise.all([
+                 axios.post(`/contacts/${c.id}/phones`, {
+                     phone: this.form.phone
+                 }),
+                 axios.post(`/contacts/${c.id}/emails`, {
+                     email: this.form.email
+                 })
+             ]);
+             this.$refs.alert.success('Contact successfully created');
+             this.$router.push({ path: `/contact/${c.id}` });
          },
          sortBy(field) {
              if (field == this.listSortField) {
