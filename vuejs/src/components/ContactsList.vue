@@ -155,6 +155,7 @@
          };
      },
      created() {
+         /* create a debounced version of the search here */
          this.debouncedUpdateSearchOptions = _.debounce(() => { this.updateSearchOptions(); }, 300);
      },
      mounted() {
@@ -185,10 +186,6 @@
          ])
      },
      methods: {
-         alert(msg) {
-             this.alertMessage = msg;
-             this.$refs.alert.open();
-         },
          changePage(val) {
              this.$store.commit('setListPage', this.listPage + val);
              this.getPage();

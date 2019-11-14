@@ -89,10 +89,10 @@ if __name__ == '__main__':
                     d = dict(zip(fields, row))
                     obj.create(**d)
 
-        for fname in [ ['contacts.csv', Contact],
-                       ['emails-1.csv', Email],
-                       ['emails-2.csv', Email],
-                       ['emails-3.csv', Email]
+        for fname in [ ['seedData/contacts.csv', Contact],
+                       ['seedData/emails-1.csv', Email],
+                       ['seedData/emails-2.csv', Email],
+                       ['seedData/emails-3.csv', Email]
                        ]:
             seed(*fname)
         

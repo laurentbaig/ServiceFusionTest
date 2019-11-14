@@ -10,15 +10,25 @@ import ContactDetail from './components/ContactDetail.vue';
 import '../node_modules/spectre.css/dist/spectre.css';
 import '../node_modules/spectre.css/dist/spectre-icons.css';
 
+/*
+ * Set up Vue
+ */
 Vue.config.productionTip = false;
 Vue.use(VueRouter);
 Vue.use(Vuex);
 
+/* 
+ * Set up axios
+ */
 window.axios = axios;
-//window.axios.defaults.baseURL = 'http://localhost:5000/api';
-
 window.axios.defaults.baseURL = 'http://ec2-54-218-214-243.us-west-2.compute.amazonaws.com:5000/api';
+if (process.env.NODE_ENV == 'development') {
+    window.axios.defaults.baseURL = 'http://localhost:5000/api';
+}
 
+/*
+ * Vue route set up
+ */
 const routes = [
     { path: '/', component: App,
       children: [
@@ -56,9 +66,11 @@ const store = new Vuex.Store({
             state.listSortDir = value;
         }
     }
-        
 });
 
+/* 
+ * Instantiate Vue
+ */
 new Vue({
     render: h => h(App),
     router,
