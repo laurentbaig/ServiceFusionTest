@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from flask import render_template
 from flask_cors import CORS
 import connexion
