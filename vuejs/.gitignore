@@ -1,7 +1,5 @@
 .DS_Store
 __pycache__
-vuejs/node_modules
-/dist
 
 # local env files
 .env.local
