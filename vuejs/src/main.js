@@ -17,7 +17,7 @@ Vue.use(Vuex);
 window.axios = axios;
 //window.axios.defaults.baseURL = 'http://localhost:5000/api';
 
-window.axios.defaults.baseURL = 'http://ec2-35-166-95-236.us-west-2.compute.amazonaws.com:5000/api';
+window.axios.defaults.baseURL = 'http://ec2-54-218-214-243.us-west-2.compute.amazonaws.com:5000/api';
 
 const routes = [
     { path: '/', component: App,
