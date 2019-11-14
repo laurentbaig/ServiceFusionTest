@@ -260,6 +260,10 @@
                  return;
              }
              */
+             if (this.form.fname.length == 0 || this.form.lname.lenth == 0) {
+                 this.$refs.alert.error("You must enter a first name and a last name");
+                 return;
+             }
              let data = await axios.post(`/contacts`, {
                  ...this.form,
                  dob: this.form.dob.toISOString()
